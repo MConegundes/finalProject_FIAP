@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datathon_fiap_conegundes" 
+authors = [
+    {name = "Matheus Fernando Gabriel", email = "teste@google.com"}
+]
+description = "projeto de conclusão de curso MLops"
+readme = "/README.md"
+requires-python = ">=3.10"
+dynamic = ["dependencies", "version"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "no-local-version"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"
+docstring-code-format = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B301", "B403"]
