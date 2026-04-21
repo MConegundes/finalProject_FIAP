@@ -161,6 +161,19 @@ def train_model(
 		mlflow.log_metric('val_mape', metrics['mape'])
 
 		# 8️⃣ Salvar modelo e scaler
+		result = save_model(model, scaler, symbol, metrics, epochs)
+
+		return result
+
+
+def save_model(
+	model,
+	scaler,
+	symbol: str,
+	metrics: dict,
+	epochs: int,
+):
+		# 8️⃣ Salvar modelo e scaler
 		model_path = os.path.join(MODEL_DIR, f'lstm_{symbol}.keras')
 		model.save(model_path)
 		save_scaler(scaler, symbol)
