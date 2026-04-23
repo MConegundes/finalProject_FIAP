@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from src import preprocessing, data_loader, inferencia, train
+from src.ml_utils import data_loader
+from src.ml_utils import inferencia, preprocessing, train
 
 
 class TestModelStorage(unittest.TestCase):
