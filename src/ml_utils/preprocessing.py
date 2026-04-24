@@ -1,13 +1,15 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+from src.ml_utils.data_loader import save_data_db
 import joblib
 import os
+import pandas as pd
 
 SCALER_DIR = 'data/models'
 os.makedirs(SCALER_DIR, exist_ok=True)
 
 
-def create_sequences(df, window_size: int = 60):
+def create_sequences(df, ticker: str, window_size: int = 60):
 	"""
 	Cria sequências para treino de LSTM a partir do DataFrame de preços.
 
@@ -28,6 +30,8 @@ def create_sequences(df, window_size: int = 60):
 	scaler = MinMaxScaler()
 	scaled = scaler.fit_transform(values)
 
+	save_data_db(pd.DataFrame(scaled), ticker, 'processed')
+
 	X, y = [], []
 	for i in range(window_size, len(scaled)):
 		X.append(scaled[i - window_size : i])
@@ -35,6 +39,7 @@ def create_sequences(df, window_size: int = 60):
 
 	X = np.array(X)
 	y = np.array(y)
+
 	return X, y, scaler
 
 

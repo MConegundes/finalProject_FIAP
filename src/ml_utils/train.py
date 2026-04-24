@@ -99,6 +99,7 @@ def train_model(
 	mlflow.set_experiment('LSTM_Training')
 	with mlflow.start_run():
 		# 1️⃣ Carregar dados
+		print('chama carregar dados')
 		df = load_data(ticker, start_date, end_date)
 		if df.empty:
 			TRAIN_STATUS[symbol]['status'] = 'FAILED'
@@ -111,7 +112,7 @@ def train_model(
 		np.random.seed(random_seed)
 		random.seed(random_seed)
 
-		X, y, scaler = create_sequences(df, window_size)
+		X, y, scaler = create_sequences(df, ticker, window_size)
 
 		# 3️⃣ Split treino/validação
 		split = int(len(X) * train_ratio)

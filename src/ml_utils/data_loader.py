@@ -1,6 +1,7 @@
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
+import os
 
 SYMBOLS = {
     "TSLA": "TSLA",
@@ -27,7 +28,29 @@ def load_data(ticker: str, start_date: str = "2015-01-01", end_date: str = "2025
         return pd.DataFrame()  # Retorna DataFrame vazio caso não haja dados
     df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
     df.reset_index(inplace=True)
+    print('chama save data')
+    save_data_db(df, ticker, 'raw')
+
     return df
+
+
+def save_data_db(df: pd.DataFrame, ticker: str, origin: str):
+    """
+    Salva o DataFrame na pasta data/raw como CSV.
+
+    Args:
+        df (pd.DataFrame): DataFrame com os dados
+        ticker (str): Nome do ticker (ex: 'TSLA')
+    """
+    # Garante que a pasta existe
+    db_path = os.path.join('data', f"{origin}")
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f'DB não encontrado')
+    else:
+        # Nome do arquivo
+        file_path = os.path.join(db_path, f"{ticker}_{origin}.csv")
+        # Salva o CSV
+        df.to_csv(file_path, index=False)
 
 
 
