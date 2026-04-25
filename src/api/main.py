@@ -10,9 +10,17 @@ from src.ml_utils.inferencia import load_artifacts
 from src.ml_utils.train import train_model
 from src.api.train_status import TRAIN_STATUS
 from src.ml_utils.data_loader import load_data
+from src.agent.react_agent import create_agent
+from src.agent.tools import get_tools
 
 from datetime import timedelta
 from src.utils.prediction_saver import save_predictions_csv
+
+from src.api.schemas import (
+    AgentRequest,
+    PredictRequest,
+    TrainRequest
+)
 
 app = FastAPI(title='TESLA, BYD & TOYOTA LSTM Predictive API')
 
@@ -25,7 +33,6 @@ class StockSymbol(str, Enum):
 	BYD = 'BYD'
 	TOYOTA = 'TOYOTA'
 
-
 # ===============================
 # MAPEAMENTO PARA Yahoo Finance
 # ===============================
@@ -33,36 +40,9 @@ SYMBOLS_MAP = {StockSymbol.TSLA: 'TSLA', StockSymbol.BYD: 'BYDDY', StockSymbol.T
 
 
 # ===============================
-# SCHEMAS
-# ===============================
-class PredictRequest(BaseModel):
-	symbol: StockSymbol
-	days_ahead: int = Field(default=5, ge=1, le=60)
-	start_date: date = Field(default=date(2015, 1, 1))
-	end_date: date = Field(default=date(2025, 12, 31))
-
-	@field_validator('end_date')
-	@classmethod
-	def check_dates(cls, v: date, info: ValidationInfo):
-		start_date = info.data.get('start_date')
-
-		if start_date and v < start_date:
-			raise ValueError('A data de término deve ser maior ou igual à data de início.')
-
-		return v
-
-
-class TrainRequest(BaseModel):
-	symbol: StockSymbol
-	start_date: Optional[date] = Field(default=date(2015, 1, 1))
-	end_date: Optional[date] = Field(default=date(2025, 12, 31))
-	epochs: Optional[int] = Field(default=20, ge=1, le=100)
-
-
-# ===============================
 # ENDPOINT /predict
 # ===============================
-@app.post('/predict')
+@app.post('/predict', tags=["Predição"], summary="Previsão de preços futuros usando modelo LSTM")
 def predict(req: PredictRequest):
 	symbol_enum = req.symbol
 	symbol = symbol_enum.value
@@ -128,7 +108,7 @@ def predict(req: PredictRequest):
 # ===============================
 # ENDPOINT /train (background task)
 # ===============================
-@app.post('/train')
+@app.post('/train', tags=["Treinamento"], summary="Treinamento do modelo LSTM")
 def train(req: TrainRequest, background_tasks: BackgroundTasks):
 	symbol_enum = req.symbol
 	symbol = symbol_enum.value
@@ -160,6 +140,25 @@ def train(req: TrainRequest, background_tasks: BackgroundTasks):
 
 	return {'message': f'Treinamento de {symbol} iniciado em background'}
 
+# ===============================
+# ENDPOINT /LLM Agent
+# ===============================
+@app.post("/agent", tags=["Agente"], summary="Consulta ao agente ReAct")
+async def agent_query(data: AgentRequest) -> AgentResponse:
+    REQUEST_COUNT.labels(endpoint="/agent").inc()
+
+    is_valid, reason = _INPUT_GUARD.validate(data.query)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=reason)
+
+    # Lazy import para carregar só se necessário
+    tools = get_tools()
+    agent = create_agent(tools)
+    result = agent.invoke({"input": data.query})
+
+    return AgentResponse(
+        answer=result.get("output", "")
+    )
 
 # ===============================
 # STATUS DO TREINO
@@ -170,3 +169,42 @@ def train_status(symbol: StockSymbol):
 	if symbol_str not in TRAIN_STATUS:
 		raise HTTPException(status_code=404, detail='Treino não encontrado')
 	return TRAIN_STATUS[symbol_str]
+
+
+# ===============================
+# MONITORAMENTO E AVALIAÇÃO DE QUALIDADE
+# ===============================
+
+
+@app.get("/metrics", tags=["Monitoramento"], summary="Métricas Prometheus")
+async def prometheus_metrics() -> JSONResponse:
+    return JSONResponse(content=generate_latest().decode(), media_type="text/plain")
+
+
+@app.post("/evaluate_quality", tags=["Monitoramento"], summary="Avaliar qualidade do modelo")
+async def evaluate_quality(data: dict[str, Any]) -> dict[str, Any]:
+    import numpy as np
+
+    from src.monitoring.drift import check_prediction_drift
+
+    y_true = data.get("y_true")
+    y_pred_old = data.get("y_pred_old")
+
+    if y_true is None or y_pred_old is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Campos 'y_true' e 'y_pred_old' obrigatórios.",
+        )
+
+    y_pred_new = list(_QUALITY_STATE["y_pred_new"])
+    if not y_pred_new:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Sem predições acumuladas. Faça chamadas /infer antes.",
+        )
+
+    sigma_metrics = compute_sigma_metric(
+        np.array(y_true), np.array(y_pred_new[: len(y_true)])
+    )
+
+    return {"quality_monitoring": sigma_metrics}

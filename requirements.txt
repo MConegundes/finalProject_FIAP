@@ -28,3 +28,8 @@ streamlit
 matplotlib
 plotly
 requests
+
+# LLM
+langchain
+langchain_community
+transformers
