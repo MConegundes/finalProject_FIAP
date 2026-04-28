@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, status
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 from enum import Enum
@@ -10,12 +10,12 @@ from src.ml_utils.inferencia import load_artifacts
 from src.ml_utils.train import train_model
 from src.api.train_status import TRAIN_STATUS
 from src.ml_utils.data_loader import load_data
-from src.agent.react_agent import create_agent
-from src.agent.tools import get_tools
+from src.agente.agente_ia import create_agent
+from src.agente.agent_tools import get_tools
 
 from datetime import timedelta
 from src.utils.prediction_saver import save_predictions_csv
-
+from src.llm_security.guardrails import InputGuardrail, OutputGuardrail
 from src.api.schemas import (
     AgentRequest,
     PredictRequest,
@@ -23,7 +23,8 @@ from src.api.schemas import (
 )
 
 app = FastAPI(title='TESLA, BYD & TOYOTA LSTM Predictive API')
-
+_INPUT_GUARD = InputGuardrail()
+_OUTPUT_GUARD = OutputGuardrail()
 
 # ===============================
 # ENUM DE SÍMBOLOS
@@ -156,9 +157,8 @@ async def agent_query(data: AgentRequest) -> AgentResponse:
     agent = create_agent(tools)
     result = agent.invoke({"input": data.query})
 
-    return AgentResponse(
-        answer=result.get("output", "")
-    )
+    sanitized = _OUTPUT_GUARD.sanitize(result.get("output", ""))
+    return AgentResponse(answer=sanitized)
 
 # ===============================
 # STATUS DO TREINO

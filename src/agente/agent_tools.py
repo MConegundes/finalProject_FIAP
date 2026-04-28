@@ -11,6 +11,9 @@ from src.utils.prediction_saver import save_predictions_csv
 from datetime import date, timedelta
 from fastapi import HTTPException
 
+from src.agente.rag import retrieve_context
+
+
 # ===============================
 # ENUM DE SÍMBOLOS
 # ===============================
@@ -148,6 +151,19 @@ def _price_prediction(symbol: StockSymbol) -> str:
         )
 
 
+def _rag_knowledge(query: str) -> str:
+    """Busca conhecimento relevante do banco de documentos RAG."""
+    try:
+        contexts = retrieve_context(query, k=3)
+        if not contexts:
+            return "Nenhum contexto relevante encontrado."
+        return "\n---\n".join(contexts)
+    except Exception as e:
+        logger.error(f"Erro na busca RAG: {e}")
+        return f"Erro ao buscar contexto: {e}"
+    
+
+
 def get_stock_tools() -> list[Tool]:
     """Retorna lista de tools para o agente."""
     return [
@@ -173,6 +189,15 @@ def get_stock_tools() -> list[Tool]:
             description=(
                 "Executa predição de preço usando modelo LSTM treinado. "
                 "Input: Nome da empresa."
+            ),
+        ),
+        Tool(
+            name="rag_knowledge",
+            func=_rag_knowledge,
+            description=(
+                "Busca conhecimento relevante do banco de documentos. "
+                "Use para contexto histórico, análises, notícias. "
+                "Input: pergunta ou termo de busca."
             ),
         ),
     ]
