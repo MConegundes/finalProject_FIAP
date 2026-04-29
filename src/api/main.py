@@ -2,9 +2,12 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks, status
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 from enum import Enum
-from datetime import date
+from collections import deque
 import numpy as np
-from typing import Optional
+import pandas as pd
+from typing import Any
+from datetime import timedelta
+from pathlib import Path
 
 from src.ml_utils.inferencia import load_artifacts
 from src.ml_utils.train import train_model
@@ -12,9 +15,8 @@ from src.api.train_status import TRAIN_STATUS
 from src.ml_utils.data_loader import load_data
 from src.agente.agente_ia import create_agent
 from src.agente.agent_tools import get_tools
-
-from datetime import timedelta
 from src.utils.prediction_saver import save_predictions_csv
+from src.monitoring.drift_detection import check_data_drift, check_prediction_drift
 from src.llm_security.guardrails import InputGuardrail, OutputGuardrail
 from src.api.schemas import (
     AgentRequest,
@@ -25,6 +27,11 @@ from src.api.schemas import (
 app = FastAPI(title='TESLA, BYD & TOYOTA LSTM Predictive API')
 _INPUT_GUARD = InputGuardrail()
 _OUTPUT_GUARD = OutputGuardrail()
+_QUALITY_STATE: dict[str, deque] = {
+    "y_true": deque(maxlen=1000),
+    "y_pred_new": deque(maxlen=1000),
+    "y_pred_old": deque(maxlen=1000),
+}
 
 # ===============================
 # ENUM DE SÍMBOLOS
@@ -145,7 +152,7 @@ def train(req: TrainRequest, background_tasks: BackgroundTasks):
 # ENDPOINT /LLM Agent
 # ===============================
 @app.post("/agent", tags=["Agente"], summary="Consulta ao agente ReAct")
-async def agent_query(data: AgentRequest) -> AgentResponse:
+async def agent_query(data: AgentRequest) -> AgentResponse: # type: ignore
     REQUEST_COUNT.labels(endpoint="/agent").inc()
 
     is_valid, reason = _INPUT_GUARD.validate(data.query)
@@ -158,7 +165,7 @@ async def agent_query(data: AgentRequest) -> AgentResponse:
     result = agent.invoke({"input": data.query})
 
     sanitized = _OUTPUT_GUARD.sanitize(result.get("output", ""))
-    return AgentResponse(answer=sanitized)
+    return AgentResponse(answer=sanitized) # type: ignore
 
 # ===============================
 # STATUS DO TREINO
@@ -182,13 +189,39 @@ async def prometheus_metrics() -> JSONResponse:
 
 
 @app.post("/evaluate_quality", tags=["Monitoramento"], summary="Avaliar qualidade do modelo")
-async def evaluate_quality(data: dict[str, Any]) -> dict[str, Any]:
-    import numpy as np
-
-    from src.monitoring.drift import check_prediction_drift
-
-    y_true = data.get("y_true")
-    y_pred_old = data.get("y_pred_old")
+async def evaluate_quality(ticker: StockSymbol) -> dict[str, Any]:
+    # Carregar y_true do último arquivo em data/predictions com o ticker
+    predictions_dir = Path("data/predictions")
+    ticker_value = ticker.value
+    
+    # Buscar último arquivo com o ticker no nome
+    prediction_files = sorted(
+        predictions_dir.glob(f"{ticker_value}_predictions*.csv"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True
+    )
+    
+    if not prediction_files:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Nenhum arquivo de predição encontrado para {ticker_value}"
+        )
+    
+    y_true_df = pd.read_csv(prediction_files[0])
+    y_true = y_true_df.iloc[:, -1].tolist()  # Última coluna
+    
+    # Carregar y_pred_old do arquivo em data/predictions/train_dataset
+    train_dataset_dir = Path("data/predictions/train_dataset")
+    train_files = list(train_dataset_dir.glob(f"{ticker_value}_predictions.csv"))
+    
+    if not train_files:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Nenhum arquivo de treino encontrado para {ticker_value}"
+        )
+    
+    y_pred_old_df = pd.read_csv(train_files[0])
+    y_pred_old = y_pred_old_df.iloc[:, -1].tolist()  # Última coluna
 
     if y_true is None or y_pred_old is None:
         raise HTTPException(
@@ -203,8 +236,32 @@ async def evaluate_quality(data: dict[str, Any]) -> dict[str, Any]:
             detail="Sem predições acumuladas. Faça chamadas /infer antes.",
         )
 
-    sigma_metrics = compute_sigma_metric(
-        np.array(y_true), np.array(y_pred_new[: len(y_true)])
+    y_true_arr = np.array(y_true)
+    y_pred_new_arr = np.array(y_pred_new[: len(y_true)])
+    y_pred_old_arr = np.array(y_pred_old)
+
+    # Avaliação de prediction drift (comparar predições antigas vs novas)
+    prediction_drift = check_prediction_drift(
+        y_pred_reference=y_pred_old_arr,
+        y_pred_current=y_pred_new_arr,
     )
 
-    return {"quality_monitoring": sigma_metrics}
+    result = {
+        "prediction_drift": prediction_drift
+    }
+
+    # Avaliação de data drift (opcional, se dados de referência forem fornecidos)
+    reference_data = y_pred_old_arr
+    current_data = y_pred_new_arr
+
+    if reference_data is not None and current_data is not None:
+        try:
+            ref_df = pd.DataFrame(reference_data)
+            cur_df = pd.DataFrame(current_data)
+            data_drift = check_data_drift(ref_df, cur_df)
+            result["data_drift"] = data_drift
+        except Exception as e:
+            result["data_drift"] = {"error": str(e)}
+
+    return result
+
