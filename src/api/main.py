@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks, status
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
+from fastapi.responses import JSONResponse
+from prometheus_client import generate_latest
 from enum import Enum
 from collections import deque
 import numpy as np
@@ -23,6 +25,7 @@ from src.api.schemas import (
     PredictRequest,
     TrainRequest
 )
+from src.monitoring.metrics_api import (INFERENCE_LATENCY, REQUEST_COUNT)
 
 app = FastAPI(title='TESLA, BYD & TOYOTA LSTM Predictive API')
 _INPUT_GUARD = InputGuardrail()
@@ -52,6 +55,8 @@ SYMBOLS_MAP = {StockSymbol.TSLA: 'TSLA', StockSymbol.BYD: 'BYDDY', StockSymbol.T
 # ===============================
 @app.post('/predict', tags=["Predição"], summary="Previsão de preços futuros usando modelo LSTM")
 def predict(req: PredictRequest):
+	REQUEST_COUNT.labels(endpoint="/predict").inc()
+	INFERENCE_LATENCY.labels(endpoint="/predict").start_timer()
 	symbol_enum = req.symbol
 	symbol = symbol_enum.value
 	ticker = SYMBOLS_MAP[symbol_enum]
@@ -87,6 +92,7 @@ def predict(req: PredictRequest):
 
 	preds_scaled = np.array(preds_scaled).reshape(-1, 1)
 	preds = scaler.inverse_transform(preds_scaled)
+	INFERENCE_LATENCY.labels(endpoint="/predict").stop_timer()
 
 	# Datas futuras
 	last_date = df['Date'].iloc[-1]
@@ -118,6 +124,7 @@ def predict(req: PredictRequest):
 # ===============================
 @app.post('/train', tags=["Treinamento"], summary="Treinamento do modelo LSTM")
 def train(req: TrainRequest, background_tasks: BackgroundTasks):
+	REQUEST_COUNT.labels(endpoint="/train").inc()
 	symbol_enum = req.symbol
 	symbol = symbol_enum.value
 	ticker = SYMBOLS_MAP[symbol_enum]
