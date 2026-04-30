@@ -1,0 +1,227 @@
+[
+  {
+    "query": "Qual é a tendência atual da Tesla?",
+    "expected_answer": "Tesla está em tendência de alta com preço acima das médias móveis SMA20 e SMA50, indicando força do mercado. O RSI em torno de 65 sugere momento de compra moderado.",
+    "contexts": [
+      "Tesla (TSLA) é líder em veículos elétricos e tecnologia autônoma. Em 2024, reportou crescimento de 20% em vendas. Analistas indicam compra para longo prazo.",
+      "Análise técnica: SMA20 acima de SMA50 é sinal bullish clássico. Preço acima de ambas as médias confirma tendência de alta.",
+      "RSI(14) mede momento: valores 50-70 indicam mercado em alta; acima de 70 pode indicar sobrevenda. TSLA tem historicamente oscilado entre 55-75."
+    ]
+  },
+  {
+    "query": "A BYD vai subir nos próximos dias?",
+    "expected_answer": "BYD tem potencial de subida se mantiver suporte acima de SMA20. A empresa é líder em baterias e veículos elétricos na Ásia. Monitorar RSI para evitar sobrevenda.",
+    "contexts": [
+      "BYD (Buffett Battery Dynasty) é maior fabricante de baterias do mundo e líder em veículos elétricos na China. Crescimento consistente de 15% a.a.",
+      "Tecnicamente, BYD mantém suporte em SMA20. Se romper acima de SMA50, sinal de aceleração de compras.",
+      "Risco: volatilidade do mercado chinês. Recomendação: diversificar, não colocar 100% em um ativo."
+    ]
+  },
+  {
+    "query": "Como está o desempenho da Toyota no mercado?",
+    "expected_answer": "Toyota é empresa estável com crescimento moderado. Preço tende a ser conservador. Boa para portfolios de longo prazo com dividendos.",
+    "contexts": [
+      "Toyota é fabricante tradicional de automóveis, pioneira em híbridos. Market cap de $200B+ indica liquidez alta.",
+      "Historicamente, Toyota tem crescimento mais lento que TSLA/BYD mas com volatilidade menor. Dividends de ~1.5% a.a.",
+      "Análise: preço mais estável torna Toyota atrativa para investidores avessos a risco."
+    ]
+  },
+  {
+    "query": "Qual ação tem maior volatilidade?",
+    "expected_answer": "Tesla tem volatilidade anualizada de ~35-45%, muito maior que BYD (~25-30%) e Toyota (~15-20%). TSLA é mais adequada para traders, não para buy-and-hold.",
+    "contexts": [
+      "Volatilidade é desvio padrão dos retornos. TSLA: alta (36%), BYD: média (28%), TM: baixa (16%).",
+      "Alta volatilidade = oportunidades maiores mas risco maior. Traders usam TSLA para scalping; investidores conservadores preferem Toyota.",
+      "Recomendação: considere perfil de risco antes de escolher."
+    ]
+  },
+  {
+    "query": "O RSI da TSLA está muito alto?",
+    "expected_answer": "Se RSI está acima de 70, pode indicar sobrevenda ou consolidação. RSI entre 50-70 é saudável. Acima de 80 sugere ajuste de preços iminente.",
+    "contexts": [
+      "RSI (Relative Strength Index) varia de 0-100. Valores acima de 70 são considerados altos (possível reversão). TSLA oscila entre 40-80.",
+      "RSI alto não significa vender imediatamente; pode indicar força continuada. Confirmar com outras métricas (volume, preço absoluto).",
+      "Estratégia: RSI alto + preço acima SMA20 = compra. RSI alto + preço abaixo SMA20 = venda."
+    ]
+  },
+  {
+    "query": "Qual é a previsão de preço para a próxima semana?",
+    "expected_answer": "Modelo LSTM prevê aumento de 1-3% para a próxima semana em TSLA, mantendo suporte em SMA20. BYD com menor certeza. Toyota mais estável.",
+    "contexts": [
+      "LSTM (Long Short-Term Memory) prevê baseado em últimos 60 dias de preços. Acurácia esperada: 70% dentro de 0.5 desvio-padrão.",
+      "Disclaimer: Previsões são probabilísticas. Mercado é afetado por eventos não previstos (earnings, macro, regulação).",
+      "Usar como assistência, não como garantia."
+    ]
+  },
+  {
+    "query": "TSLA caiu 5% hoje. Devo comprar no dip?",
+    "expected_answer": "Depende do cenário técnico. Se queda foi com volume alto e preço ainda acima SMA20, pode ser bom entry. Se abaixo SMA20, aguarde consolidação.",
+    "contexts": [
+      "Dip (queda rápida) pode ser oportunidade de compra se fundament são saudáveis. TSLA historicamente recupera de quedas de 5-10%.",
+      "Critério: Comprar se preço > SMA20. Se < SMA20, risco de queda maior (sinal de tendência de baixa).",
+      "Volume confirmação: se dip teve baixo volume, pode ser falso sinal."
+    ]
+  },
+  {
+    "query": "Qual é a SMA20 e SMA50 da BYD agora?",
+    "expected_answer": "SMA20 (média móvel de 20 dias) fornece suporte dinâmico. SMA50 (média de 50 dias) fornece suporte de longo prazo. Para BYD: aproximadamente $25-30 e $22-28 respectivamente.",
+    "contexts": [
+      "SMA (Simple Moving Average) suaviza preço. SMA20 é mais responsiva; SMA50 é mais estável. Cruzamento (SMA20 > SMA50) é sinal bullish.",
+      "BYD: SMA20 foi recentemente $26.50, SMA50 foi $24.80. Preço acima = tendência alta.",
+      "Valores mudam diariamente. Consultar dados reais em yfinance/Bloomberg."
+    ]
+  },
+  {
+    "query": "Há riscos de crash no mercado de ações?",
+    "expected_answer": "Sim, riscos sistêmicos sempre existem: taxa de juros, inflação, política. Recomendação: diversificar, não colocar tudo em uma ação. Manter fundo de emergência.",
+    "contexts": [
+      "Riscos de mercado: econômicos (recessão), políticos (eleições), regulatórios (anti-trust), geopolíticos (guerras).",
+      "TSLA é sensível a mudanças de taxa de juros (crescimento); BYD a regulação chinesa; Toyota a econômia global.",
+      "Mitigação: diversificar entre setores, geografias, tipos de investimento."
+    ]
+  },
+  {
+    "query": "Como interpretar o volume de negociação?",
+    "expected_answer": "Volume alto com preço em alta = confirmação bullish. Volume alto com queda = confirmação de venda. Volume baixo = falta de convicção.",
+    "contexts": [
+      "Volume é número de ações negociadas. Alto = consenso (muitos compradores ou vendedores). Baixo = incerteza.",
+      "Padrão: Preço sobe + volume alto = força real. Preço sobe + volume baixo = possível reversão iminente.",
+      "TSLA tem volume diário de ~60-80M ações. BYD ~100M. Movimentos com volume >2x média são significativos."
+    ]
+  },
+  {
+    "query": "Qual é a diferença entre análise técnica e fundamental?",
+    "expected_answer": "Técnica usa histórico de preço/volume (SMA, RSI, MACD). Fundamental analisa balanços, lucros, crescimento. Ambas são complementares.",
+    "contexts": [
+      "Análise técnica: padrões históricos. Assume que mercado reflete tudo. Horizonte: curto prazo (dias/semanas).",
+      "Análise fundamental: valor intrínseco. Olha P/E, ROE, crescimento. Horizonte: longo prazo (anos).",
+      "Melhor estratégia: combinar. Usar técnica para timing de entrada; fundamental para seleção de ativos."
+    ]
+  },
+  {
+    "query": "TSLA está cara em relação ao P/E?",
+    "expected_answer": "TSLA tem P/E de ~30-40x, superior ao mercado (~20x) e Toyota (~10x). Reflete expectativa de crescimento futuro, não necessariamente sobrevenda.",
+    "contexts": [
+      "P/E = Preço / Lucro. Alto P/E = mercado espera crescimento alto. TSLA justifica por inovação e market share.",
+      "Comparação: P/E TSLA 35 vs TM 12 indica mercado apreceia crescimento de TSLA mais que estabilidade de Toyota.",
+      "Risco: Se TSLA não crescer 20%+/ano, P/E será reduzido (preço cai)."
+    ]
+  },
+  {
+    "query": "Quando comprar e quando vender TSLA?",
+    "expected_answer": "Comprar: SMA20 > SMA50, RSI 50-70, volume crescente. Vender: SMA20 < SMA50, RSI > 75, ou preço abaixo de suporte. Use stop-loss em -5% para proteção.",
+    "contexts": [
+      "Estratégia reversal-mean: comprar quando preço < SMA20 (sobrevenda), vender quando > SMA50 + 10% (overbought).",
+      "Stop-loss é ordem automática de venda se preço cai X%. Essencial para gerenciar risco.",
+      "Take-profit: vender quando target de preço é atingido (ex: +10% em 3 meses)."
+    ]
+  },
+  {
+    "query": "Qual é o histórico de dividendos da Toyota?",
+    "expected_answer": "Toyota paga dividendos regularmente (~1.5-2% a.a.), superior a TSLA (0%) e BYD (variável). Ótimo para renda passiva.",
+    "contexts": [
+      "Dividendo = lucro distribuído aos acionistas. Toyota, empresa madura, distribui ~50% do lucro.",
+      "TSLA reinveste lucro em crescimento, não paga dividendo. BYD paga dividendo especial em bons anos.",
+      "Para investidor aposentado, Toyota é melhor; para crescimento, TSLA."
+    ]
+  },
+  {
+    "query": "O mercado está em bull ou bear market?",
+    "expected_answer": "Contexto necessário. Em 2026, mercado de ações global está em alta com alguns setores (tech) em tensão. TSLA e BYD em alta, TM mais estável. Vigilância recomendada.",
+    "contexts": [
+      "Bull market: índices acima de máximas históricas. Bear market: queda >20% de máxima.",
+      "2024-2026: mercado em recuperação após 2023. Tech liderando; energias tradicionais em retração.",
+      "Indicadores: S&P 500 em alta, VIX (volatilidade) baixo = ambiente bullish."
+    ]
+  },
+  {
+    "query": "Como o modelo LSTM prevê preços?",
+    "expected_answer": "LSTM treina em últimos 60 dias de preços fechados, aprendendo padrões temporais. Prediz próximo preço com ~70% de acurácia dentro de 0.5 desvio-padrão.",
+    "contexts": [
+      "LSTM (Long Short-Term Memory) é rede neural que captura dependências longas. Vê 60 dias de histórico para prever 1 dia.",
+      "Limitações: não previne cisnes negros (earnings surprises, macro shocks). Melhor para momentum de curto prazo.",
+      "Acurácia esperada: 70% das predições dentro de ±0.5σ (risco modelado)."
+    ]
+  },
+  {
+    "query": "Devo diversificar ou concentrar em TSLA?",
+    "expected_answer": "Diversificação é recomendada. Incluir TSLA (crescimento), BYD (exposição China), TM (estabilidade), + bonds e cash. Reduz risco sistêmico.",
+    "contexts": [
+      "Portfólio recomendado: 40% ações (diversificadas), 40% bonds, 20% cash. Dentro de ações: 30% TSLA, 30% BYD, 20% TM, 20% outros.",
+      "Concentração em 1 ação = risco idiossincrático alto. Se TSLA cai 50%, portfólio inteiro sofre.",
+      "Diversificação reduz volatilidade sem reduzir retorno esperado (Markowitz 1952)."
+    ]
+  },
+  {
+    "query": "Qual é o impacto da taxa de juros em ações de crescimento?",
+    "expected_answer": "Taxa alta reduz valor presente de fluxos futuros. TSLA (crescimento) é mais sensível; Toyota (dividendos) é mais resiliente. Subida de 1% em taxa = queda 3-5% em TSLA.",
+    "contexts": [
+      "Avaliação DCF (Discounted Cash Flow) usa taxa de desconto. Quanto maior, menor o valor presente do crescimento futuro.",
+      "TSLA: lucro concentrado em 5-10 anos; vulnerable a taxa alta. TM: lucro presente; menos impactada.",
+      "Em ambiente de taxa alta, considerar aumento de bonds vs ações."
+    ]
+  },
+  {
+    "query": "Como identificar uma bolha especulativa?",
+    "expected_answer": "Sinais: P/E extremamente alto (>60x), volume especulativo, narrativa FOMO, valuations descolados de fundamentos. TSLA tem elementos de bolha mas também crescimento real.",
+    "contexts": [
+      "Bolha: quando preço desconectado de valor intrínseco. Exemplos: Dot-com (2000), Housing (2007), Crypto (2021).",
+      "TSLA P/E alto (35x) pode ser bolha OU justified (se crescimento 30%/ano). Cabe ao investidor julgar.",
+      "Proteção: não colocar >10% do portfólio em um ativo especulativo."
+    ]
+  },
+  {
+    "query": "Qual é a melhor estratégia de trading para iniciantes?",
+    "expected_answer": "Buy-and-hold: comprar TSLA + BYD + TM, manter 3-5 anos, ignorar volatilidade curta. Menos estressante e historicamente melhor que trading ativo.",
+    "contexts": [
+      "80% dos traders ativos perdem dinheiro (custos + timing ruins). Buy-and-hold ganha 8-10% a.a. em média.",
+      "Para iniciante: defina alocação (40% ações, 60% bonds), aportes mensais (DCA), reinvesta dividendos, ignore notícias diárias.",
+      "Recursos: ler 'A Random Walk Down Wall Street' (Burton Malkiel), usar ETFs para simplificar."
+    ]
+  },
+  {
+    "query": "TSLA vai atingir $300 em 2026?",
+    "expected_answer": "Possível mas incerto. Cenário otimista (crescimento 25%/ano + expansão): sim. Cenário pessimista (recessão, concorrência): não. Probabilidade ~40%.",
+    "contexts": [
+      "Preço atual: ~$195. Target $300 = +54%. Requer crescimento acelerado ou múltiplo P/E maior.",
+      "Catalyst positivo: AI em FullSelfDriving, nova planta em México, bateria 4680 em produção.",
+      "Catalyst negativo: recessão econômica, concorrência (BYD ultrapassa), recall de segurança."
+    ]
+  },
+  {
+    "query": "Como mitigar risco de concentração em tech?",
+    "expected_answer": "Adicionar defensive stocks (utilities, consumer staples), bonds, real estate. Alocação: 50% tech, 30% value, 20% bonds.",
+    "contexts": [
+      "Tech é cíclico; valor é anti-cíclico. Quando tech cai (bear market), valor sobe.",
+      "Exemplo: TSLA + BYD (100% tech) em 2022 caiu 70%. Portfólio 50% tech + 50% bonds caiu só 35%.",
+      "Rebalanceamento trimestral: manter proporções originais."
+    ]
+  },
+  {
+    "query": "Qual é a volatilidade esperada para TSLA nos próximos 30 dias?",
+    "expected_answer": "Histórica: 35-40% anualizada = ~2% diária. Esperado: 28-32 dias com movimentos de 2-3%, alguns de 5%+. Extremo: 10% em um dia é possível.",
+    "contexts": [
+      "Volatilidade histórica de 60 dias é melhor preditor de volatilidade futura. TSLA: 36% a.a. = 2.2% diária esperada.",
+      "Caudas pesadas: 1-2 dias por mês com >5% de movimento. Planar para isto com stop-loss.",
+      "VIX (índice de volatilidade) global pode ampliar isto se houver choque macro."
+    ]
+  },
+  {
+    "query": "Qual é a correlação entre TSLA e BYD?",
+    "expected_answer": "Correlação ~0.6-0.7 (moderada). Ambas crescem em ciclo de EV; eventos específicos (earnings, regulação) afetam cada uma diferentemente. Bom diversificador.",
+    "contexts": [
+      "Correlação 1.0 = movimento idêntico. 0.0 = independentes. TSLA-BYD: 0.65 = moderadamente correlacionadas.",
+      "Motivo: ambas no setor EV, mas TSLA sensível a US tech sentiment; BYD a política chinesa.",
+      "Para reduzir risco sistemático, combinar TSLA + BYD + TM (correlação 0.3-0.4 com ambas)."
+    ]
+  },
+  {
+    "query": "O agente ReAct pode prever cisnes negros?",
+    "expected_answer": "Não. Agente usa dados históricos e ferramentas convencionais. Cisnes negros (earnings surprises, regulatory, geopolitical) são por definição imprevistos. Use agente como assistente informativo, não como preditor de eventos.",
+    "contexts": [
+      "Cisne negro = evento raro, impacto extremo, ex-post explicável. Exemplos: COVID-19, Fukushima, 9/11.",
+      "Modelos (LSTM, técnico) tentam prever padrões; não eventos únicos. Confiança diminui em incerteza macro.",
+      "Proteção: manter cash reserve (20%), usar stop-loss, não assumir risco que não pode sustentar."
+    ]
+  }
+]
