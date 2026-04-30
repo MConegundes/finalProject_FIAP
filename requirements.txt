@@ -34,3 +34,5 @@ requests
 langchain
 langchain_community
 transformers
+torch
+langchain-text-splitters

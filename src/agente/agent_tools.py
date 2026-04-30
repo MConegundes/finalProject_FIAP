@@ -3,7 +3,7 @@ from typing import Any
 
 import numpy as np
 import yfinance as yf
-from langchain.tools import Tool
+from langchain_core.tools import Tool
 
 from src.ml_utils.data_loader import load_data
 from src.ml_utils.inferencia import load_artifacts

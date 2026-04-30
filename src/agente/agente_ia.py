@@ -1,12 +1,17 @@
 import logging
 import torch
 
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.prompts import PromptTemplate
-from langchain.tools import Tool
-from langchain_community.llms import HuggingFacePipeline
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from functools import lru_cache
+
+from langchain_community.llms import HuggingFacePipeline
+from langchain_core.tools import Tool
+from langchain_core.prompts import PromptTemplate
+
+from langchain.agents import create_agent
+#from langchain.agents import AgentExecutor
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +133,7 @@ def create_agent(
     tools: list[Tool],
     model: str = "Qwen/Qwen2.5-0.5B-Instruct",
     quantize: bool = True,
-) -> AgentExecutor:
+):
     """Cria agente ReAct para o Datathon.
 
     Args:
@@ -138,8 +143,8 @@ def create_agent(
     """
 
     llm = build_llm(model, quantize)
-    agent = create_react_agent(llm=llm, tools=tools, prompt=REACT_PROMPT)
+    agent = create_agent(llm=llm, tools=tools, system_prompt=REACT_PROMPT)
 
-    agent_llm = AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=20, handle_parsing_errors=True)
+ #   agent_llm = AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=20, handle_parsing_errors=True)
 
-    return agent_llm
+    return agent
