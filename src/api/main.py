@@ -15,7 +15,7 @@ from src.ml_utils.inferencia import load_artifacts
 from src.ml_utils.train import train_model
 from src.api.train_status import TRAIN_STATUS
 from src.ml_utils.data_loader import load_data
-from src.agente.agente_ia import create_agent
+from src.agente.agente_ia import generate_response
 from src.agente.agent_tools import get_tools
 from src.utils.prediction_saver import save_predictions_csv
 from src.monitoring.drift_detection import check_data_drift, check_prediction_drift
@@ -159,20 +159,23 @@ def train(req: TrainRequest, background_tasks: BackgroundTasks):
 # ENDPOINT /LLM Agent
 # ===============================
 @app.post("/agent", tags=["Agente"], summary="Consulta ao agente ReAct")
-async def agent_query(data: AgentRequest) -> AgentResponse: # type: ignore
+async def agent_query(data: AgentRequest): # type: ignore
     REQUEST_COUNT.labels(endpoint="/agent").inc()
 
     is_valid, reason = _INPUT_GUARD.validate(data.query)
     if not is_valid:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=reason)
 
-    # Lazy import para carregar só se necessário
-    tools = get_tools()
-    agent = create_agent(tools)
-    result = agent.invoke({"input": data.query})
 
-    sanitized = _OUTPUT_GUARD.sanitize(result.get("output", ""))
-    return AgentResponse(answer=sanitized) # type: ignore
+    # Lazy import para carregar só se necessário
+    # tools = get_tools()
+    # agent = build_agent(tools)
+    # result = agent.invoke({"input": data.query})
+	 
+
+    result = generate_response(data.query)
+    # sanitized = _OUTPUT_GUARD.sanitize(result)
+    return {'message': result} # type: ignore
 
 # ===============================
 # STATUS DO TREINO

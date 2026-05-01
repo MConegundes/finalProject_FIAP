@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
-from evidently.metric_preset import DataDriftPreset
+from evidently.metric_preset import data_drift as DataDriftPreset
 from evidently.report import Report
 
 logger = logging.getLogger(__name__)

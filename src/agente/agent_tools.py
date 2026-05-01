@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from enum import Enum
 import numpy as np
 import yfinance as yf
 from langchain_core.tools import Tool
@@ -164,7 +165,7 @@ def _rag_knowledge(query: str) -> str:
     
 
 
-def get_stock_tools() -> list[Tool]:
+def get_tools() -> list[Tool]:
     """Retorna lista de tools para o agente."""
     return [
         Tool(
